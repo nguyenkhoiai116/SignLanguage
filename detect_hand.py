@@ -6,134 +6,132 @@ import os
 # CONFIG
 # =======================
 
-VIDEO_PATH = "D:\\Document\\HK1_II_2\\NhapMon\\Project\\SignLanguge\\split video\\7350425037408.mp4"     # Đường dẫn video đầu vào
-OUTPUT_DIR = "hand_images"   # Thư mục lưu ảnh tay
-IMG_SIZE = 224               # Kích thước ảnh đầu ra (224x224)
-SAVE_EVERY_N_FRAME = 20       # Lưu mỗi N frame (1 = frame nào cũng lưu)
+VIDEO_DIR = "split video"          # Thư mục chứa nhiều video
+OUTPUT_DIR = "raw"   # Thư mục lưu ảnh tay
+IMG_SIZE = 224
+SAVE_EVERY_N_FRAME = 20            # Lưu mỗi N frame
 
 os.makedirs(OUTPUT_DIR, exist_ok=True)
+
+VIDEO_EXTS = (".mp4", ".avi", ".mov", ".mkv")
 
 # =======================
 # KHỞI TẠO MEDIAPIPE HANDS
 # =======================
 
 mp_hands = mp.solutions.hands
-
 hands = mp_hands.Hands(
-    static_image_mode=False,     # False = dùng tracking (nhanh hơn video)
-    max_num_hands=1,             # Giới hạn 1 tay (đỡ nhiễu)
+    static_image_mode=False,
+    max_num_hands=1,
     min_detection_confidence=0.5,
     min_tracking_confidence=0.5
 )
 
 # =======================
-# ĐỌC VIDEO
+# DUYỆT QUA TỪNG VIDEO
 # =======================
 
-cap = cv2.VideoCapture(VIDEO_PATH)
+save_id = 0  # global counter
 
-frame_id = 0   # Đếm số frame
-save_id = 0    # Đếm số ảnh đã lưu
+for video_name in os.listdir(VIDEO_DIR):
 
-while cap.isOpened():
-    ret, frame = cap.read()
-    if not ret:
-        break
-
-    frame_id += 1
-
-    # Bỏ qua frame nếu không đúng chu kỳ lưu
-    if frame_id % SAVE_EVERY_N_FRAME != 0:
+    if not video_name.lower().endswith(VIDEO_EXTS):
         continue
 
-    h, w, _ = frame.shape
+    video_path = os.path.join(VIDEO_DIR, video_name)
+    print(f"\n▶ Đang xử lý video: {video_name}")
 
-    # =======================
-    # XỬ LÝ MEDIAPIPE
-    # =======================
+    cap = cv2.VideoCapture(video_path)
+    frame_id = 0
 
-    # OpenCV dùng BGR, MediaPipe cần RGB
-    rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    while cap.isOpened():
+        ret, frame = cap.read()
+        if not ret:
+            break
 
-    # Detect tay
-    results = hands.process(rgb)
+        frame_id += 1
 
-    # Nếu phát hiện được tay
-    if results.multi_hand_landmarks:
-        for hand_landmarks in results.multi_hand_landmarks:
+        if frame_id % SAVE_EVERY_N_FRAME != 0:
+            continue
 
-            # =======================
-            # LẤY BOUNDING BOX TỪ LANDMARK
-            # =======================
+        h, w, _ = frame.shape
 
-            xs = [lm.x for lm in hand_landmarks.landmark]
-            ys = [lm.y for lm in hand_landmarks.landmark]
-            print(hand_landmarks.landmark)
+        # =======================
+        # MEDIAPIPE PROCESS
+        # =======================
 
-            # Chuyển từ tọa độ chuẩn hóa (0–1) sang pixel
-            x1 = int(min(xs) * w) # cạnh trái
-            y1 = int(min(ys) * h) # cạnh trên   
-            x2 = int(max(xs) * w) # cạnh phải
-            y2 = int(max(ys) * h) # cạnh dưới
+        rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        results = hands.process(rgb)
 
-            # Nới bbox để tránh cụt tay
-            pad = 40 # pixels
-            x1 = max(0, x1 - pad)
-            y1 = max(0, y1 - pad)
-            x2 = min(w, x2 + pad)
-            y2 = min(h, y2 + pad)
+        if results.multi_hand_landmarks:
+            for hand_landmarks in results.multi_hand_landmarks:
 
-            # =======================
-            # VẼ PREVIEW BBOX
-            # =======================
+                # -----------------------
+                # BOUNDING BOX
+                # -----------------------
 
-            cv2.rectangle(frame, (x1, y1), (x2, y2),
-                          (0, 255, 0), 2)
+                xs = [lm.x for lm in hand_landmarks.landmark]
+                ys = [lm.y for lm in hand_landmarks.landmark]
 
-            # =======================
-            # CROP ẢNH BÀN TAY
-            # =======================
+                x1 = int(min(xs) * w)
+                y1 = int(min(ys) * h)
+                x2 = int(max(xs) * w)
+                y2 = int(max(ys) * h)
 
-            hand_crop = frame[y1:y2, x1:x2]
+                pad = 100
+                x1 = max(0, x1 - pad)
+                y1 = max(0, y1 - pad)
+                x2 = min(w, x2 + pad)
+                y2 = min(h, y2 + pad)
 
-            if hand_crop.size == 0:
-                continue
+                cv2.rectangle(frame, (x1, y1), (x2, y2),
+                              (0, 255, 0), 2)
 
-            # Resize về kích thước cố định
-            hand_crop_resized = cv2.resize(
-                hand_crop, (IMG_SIZE, IMG_SIZE)
-            )
+                # -----------------------
+                # CROP + RESIZE
+                # -----------------------
 
-            # =======================
-            # PREVIEW TRƯỚC KHI LƯU
-            # =======================
+                hand_crop = frame[y1:y2, x1:x2]
+                if hand_crop.size == 0:
+                    continue
 
-            cv2.imshow("Frame (BBox Preview)", frame)
-            cv2.imshow("Hand Preview (224x224)", hand_crop_resized)
+                hand_crop_resized = cv2.resize(
+                    hand_crop, (IMG_SIZE, IMG_SIZE)
+                )
 
-            # =======================
-            # LƯU ẢNH
-            # =======================
+                # -----------------------
+                # PREVIEW
+                # -----------------------
 
-            cv2.imwrite(
-                f"{OUTPUT_DIR}/hand_{save_id:05d}.jpg",
-                hand_crop_resized
-            )
-            save_id += 1
+                cv2.imshow("Frame (BBox Preview)", frame)
+                cv2.imshow("Hand Preview", hand_crop_resized)
 
-    # =======================
-    # THOÁT BẰNG PHÍM Q
-    # =======================
+                # -----------------------
+                # LƯU ẢNH (gắn tên video)
+                # -----------------------
 
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
+                video_id = os.path.splitext(video_name)[0]
+
+                cv2.imwrite(
+                    f"{OUTPUT_DIR}/{video_id}_hand_{save_id:06d}.jpg",
+                    hand_crop_resized
+                )
+
+                save_id += 1
+
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            cap.release()
+            hands.close()
+            cv2.destroyAllWindows()
+            print("⛔ Dừng bởi người dùng")
+            exit()
+
+    cap.release()
 
 # =======================
-# GIẢI PHÓNG TÀI NGUYÊN
+# CLEAN UP
 # =======================
 
-cap.release()
 hands.close()
 cv2.destroyAllWindows()
-
-print("Done! Tổng số ảnh đã lưu:", save_id)
+print("\nDONE! Tổng số ảnh đã lưu:", save_id)
