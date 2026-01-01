@@ -64,19 +64,19 @@ def train_model(model, criterion, optimizer, dataloaders, dataset_sizes, device,
                 best_acc = epoch_acc
                 best_model_wts = copy.deepcopy(model.state_dict())
                 torch.save(model.state_dict(), "best_model_checkpoint.pth")
-                print(f"--> 🎉 Found new best model! Acc: {best_acc:.4f}")
+                print(f"Found new best model! Acc: {best_acc:.4f}")
 
     print(f'\nTraining complete. Best val Acc: {best_acc:.4f}')
     model.load_state_dict(best_model_wts)
     return model, history
 
 
-def evaluate_model(model, test_loader, device, class_names):
-    model.eval()
+def evaluate_model(model, test_loader, device, class_names): 
+    model.eval() 
     running_corrects = 0
     total = 0
     with torch.no_grad():
-        for inputs, labels in tqdm(test_loader, desc="TEST PHASE"):
+        for inputs, labels in tqdm(test_loader, desc="TEST PHASE"): 
             inputs = inputs.to(device)
             labels = labels.to(device)
             outputs = model(inputs)
@@ -84,7 +84,7 @@ def evaluate_model(model, test_loader, device, class_names):
             running_corrects += torch.sum(preds == labels.data)
             total += labels.size(0)
     acc = running_corrects.double() / total
-    print(f"\nTest Accuracy: {acc:.4f}")
+    print(f"\nTest Accuracy: {acc:.4f}") 
 
 
 if __name__ == '__main__':
@@ -109,8 +109,7 @@ if __name__ == '__main__':
             transforms.ToTensor(),
             transforms.Normalize([0.485,0.456,0.406], [0.229,0.224,0.225])
         ])
-    }
-
+    } # để chuẩn hóa ảnh giống ImageNet
     data_dir = "dataset"
     image_datasets = {x: datasets.ImageFolder(os.path.join(data_dir, x), data_transforms[x])
                       for x in ['train', 'val', 'test'] if os.path.exists(os.path.join(data_dir, x))}
@@ -146,22 +145,14 @@ if __name__ == '__main__':
         {'params': model.fc.parameters(), 'lr': 1e-3}
     ])
 
-    # =========================
-    # TRAIN
-    # =========================
     model, history = train_model(model, criterion, optimizer, dataloaders, dataset_sizes, device, num_epochs=20)
     torch.save(model.state_dict(), "sign_language_resnet18_finetune.pth")
     print("✅ DONE – MODEL ĐÃ LƯU")
 
-    # =========================
-    # EVALUATE
-    # =========================
     if 'test' in dataloaders:
         evaluate_model(model, dataloaders['test'], device, class_names)
 
-    # =========================
-    # PLOT
-    # =========================
+    # Vẽ biểu đồ loss và accuracy
     plt.figure(figsize=(12,5))
     plt.subplot(1,2,1)
     plt.plot(history['train_loss'], label='Train Loss')
