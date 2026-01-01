@@ -9,7 +9,7 @@ import os
 # =========================
 # CONFIG
 # =========================
-MODEL_PATH = "sign_language_resnet18_finetune.pth"
+MODEL_PATH = "best_model_checkpoint.pth"
 CLASS_NAMES = sorted(os.listdir("dataset/train"))  # lấy theo folder
 IMG_SIZE = 224
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -130,3 +130,4 @@ while cap.isOpened():
 
 cap.release()
 cv2.destroyAllWindows()
+

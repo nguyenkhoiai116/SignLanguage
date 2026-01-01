@@ -21,6 +21,7 @@ def count_images_per_class(root_dir):
 if __name__ == "__main__":
     train_dir = "dataset/train"
     val_dir   = "dataset/val"
+    test_dir = "dataset/test"
 
     print("📊 TRAIN SET DISTRIBUTION")
     train_count = count_images_per_class(train_dir)
@@ -31,3 +32,16 @@ if __name__ == "__main__":
     val_count = count_images_per_class(val_dir)
     for cls, n in val_count.items():
         print(f"{cls}: {n}")
+
+    print("\n📊 TEST SET DISTRIBUTION")
+    test_count = count_images_per_class(test_dir)
+    for cls, n in test_count.items():
+        print(f"{cls}: {n}")
+        
+    # Tổng 
+    total_train = sum(train_count.values())
+    total_val = sum(val_count.values())
+    total_test = sum(test_count.values())
+    print(f"\nTổng TRAIN: {total_train} ảnh")
+    print(f"Tổng VAL: {total_val} ảnh")
+    print(f"Tổng TEST: {total_test} ảnh")

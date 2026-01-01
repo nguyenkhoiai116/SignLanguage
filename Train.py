@@ -7,10 +7,8 @@ from tqdm import tqdm
 import copy
 import matplotlib.pyplot as plt
 
-# =========================
-# TRAIN FUNCTION WITH LOGGING
-# =========================
-def train_model(model, criterion, optimizer, dataloaders, dataset_sizes, device, num_epochs=20):
+
+def train_model(model, criterion, optimizer, dataloaders, dataset_sizes, device, num_epochs=15):
     best_model_wts = copy.deepcopy(model.state_dict())
     best_acc = 0.0
 
@@ -72,9 +70,7 @@ def train_model(model, criterion, optimizer, dataloaders, dataset_sizes, device,
     model.load_state_dict(best_model_wts)
     return model, history
 
-# =========================
-# EVALUATION ON TEST SET
-# =========================
+
 def evaluate_model(model, test_loader, device, class_names):
     model.eval()
     running_corrects = 0
@@ -90,9 +86,7 @@ def evaluate_model(model, test_loader, device, class_names):
     acc = running_corrects.double() / total
     print(f"\nTest Accuracy: {acc:.4f}")
 
-# =========================
-# MAIN
-# =========================
+
 if __name__ == '__main__':
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print("Device:", device)
@@ -130,10 +124,7 @@ if __name__ == '__main__':
     num_classes = len(class_names)
     print("Classes:", class_names)
     print("Dataset sizes:", dataset_sizes)
-
-    # =========================
-    # MODEL
-    # =========================
+    
     model = models.resnet18(weights=models.ResNet18_Weights.DEFAULT)
     for param in model.parameters():
         param.requires_grad = False
@@ -141,11 +132,11 @@ if __name__ == '__main__':
         param.requires_grad = True
     for param in model.layer4.parameters():
         param.requires_grad = True
-    num_ftrs = model.fc.in_features
+    num_ftrs = model.fc.in_features # lấy số features đầu vào
     model.fc = nn.Sequential(
-        nn.Dropout(0.5),
-        nn.Linear(num_ftrs, num_classes)
-    )
+        nn.Dropout(0.5), # dropout để tránh overfitting
+        nn.Linear(num_ftrs, num_classes) # số lớp đầu ra tương ứng số classes
+    ) 
     model = model.to(device)
 
     criterion = nn.CrossEntropyLoss(label_smoothing=0.1)
@@ -158,7 +149,7 @@ if __name__ == '__main__':
     # =========================
     # TRAIN
     # =========================
-    model, history = train_model(model, criterion, optimizer, dataloaders, dataset_sizes, device, num_epochs=30)
+    model, history = train_model(model, criterion, optimizer, dataloaders, dataset_sizes, device, num_epochs=20)
     torch.save(model.state_dict(), "sign_language_resnet18_finetune.pth")
     print("✅ DONE – MODEL ĐÃ LƯU")
 

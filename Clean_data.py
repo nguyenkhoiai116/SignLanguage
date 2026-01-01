@@ -12,7 +12,7 @@ def augment_image(image):
     height, width, channels = image.shape
 
     # 1. SHEAR NHẸ
-    shearFactor = random.uniform(-0.15, 0.15)
+    shearFactor = random.uniform(-0.15, 0.15) 
     shearMatrix = np.array([
         [1, shearFactor, 0],
         [0, 1, 0]
