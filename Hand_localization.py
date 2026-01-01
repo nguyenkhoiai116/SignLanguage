@@ -3,7 +3,7 @@ import mediapipe as mp
 import numpy as np
 import pickle
 # Load MLP model for digit classifier
-mlp = pickle.load(open('MLP_model.sav','rb'))
+mlp = pickle.load(open('MLP_model.sav','rb')) # 
 
 array_1 = np.array(list('ABCDEFGHIKLMNOPQRSTUVWXY'))  # array of letters
 array_2 = np.array(range(24))
