@@ -1,0 +1,113 @@
+SignLanguge
+├── Clean_data.py
+├── Code_Generated_Image.png
+├── Create_file.py
+├── README.md
+├── Train.py
+├── bangchucai.jpg
+├── best_model_checkpoint.pth
+├── check.py
+├── clean_name.py
+├── code-snapshot.png
+├── data
+│   └── clean
+│       ├── A
+│       ├── B
+│       ├── C
+│       ├── D
+│       ├── E
+│       ├── G
+│       ├── H
+│       ├── I
+│       ├── K
+│       ├── L
+│       ├── M
+│       ├── N
+│       ├── O
+│       ├── P
+│       ├── Q
+│       ├── R
+│       ├── S
+│       ├── T
+│       ├── U
+│       ├── V
+│       ├── X
+│       └── Y
+├── datacollect.py
+├── dataset
+│   ├── test
+│   │   ├── A
+│   │   ├── B
+│   │   ├── C
+│   │   ├── D
+│   │   ├── E
+│   │   ├── G
+│   │   ├── H
+│   │   ├── I
+│   │   ├── K
+│   │   ├── L
+│   │   ├── M
+│   │   ├── N
+│   │   ├── O
+│   │   ├── P
+│   │   ├── Q
+│   │   ├── R
+│   │   ├── S
+│   │   ├── T
+│   │   ├── U
+│   │   ├── V
+│   │   ├── X
+│   │   └── Y
+│   ├── train
+│   │   ├── A
+│   │   ├── B
+│   │   ├── C
+│   │   ├── D
+│   │   ├── E
+│   │   ├── G
+│   │   ├── H
+│   │   ├── I
+│   │   ├── K
+│   │   ├── L
+│   │   ├── M
+│   │   ├── N
+│   │   ├── O
+│   │   ├── P
+│   │   ├── Q
+│   │   ├── R
+│   │   ├── S
+│   │   ├── T
+│   │   ├── U
+│   │   ├── V
+│   │   ├── X
+│   │   └── Y
+│   └── val
+│       ├── A
+│       ├── B
+│       ├── C
+│       ├── D
+│       ├── E
+│       ├── G
+│       ├── H
+│       ├── I
+│       ├── K
+│       ├── L
+│       ├── M
+│       ├── N
+│       ├── O
+│       ├── P
+│       ├── Q
+│       ├── R
+│       ├── S
+│       ├── T
+│       ├── U
+│       ├── V
+│       ├── X
+│       └── Y
+├── main.py
+├── sign_language_resnet18_finetune.pth
+├── slip_video.py
+├── solieu.py
+├── training_curves.png
+├── tree.txt
+├── video
